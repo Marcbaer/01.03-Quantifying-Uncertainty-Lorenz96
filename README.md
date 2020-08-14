@@ -41,6 +41,6 @@ and both forcing regimes.
 
 The propagated uncertainties are significantly larger
 in the weakly chaotic regime F = 4 compared to the stronger forcing F = 10 as
-depicted in figure below.
+depicted in the figure below.
 
 <img src="./Figures/L96_variance_inputmodes.jpg" width="800" height="300"> 
