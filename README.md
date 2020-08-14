@@ -17,5 +17,12 @@ are given by:
 
 The parameter *F* defines the positive external forcing term and *J* the total number of Lorenz states, hence the number of dimensions.
 
-<img src="./Figures/L3D_uncertainty10.jpg">
+The equation above describes the evolution of the Lorenz 96 states Xj
+, components of a spatial discretized atmospheric variable. The discretized energy of the
+system remains constant through time. The external forcing term F controls the level of chaos in the dynamic system. It
+develops from periodic for F < 1 to weakly chaotic around F = 4 and fully
+turbulent around F = 16 and above. The different forcing regimes are depicted in the figures below which are obtained by integrating equations above for J = 40 Lorenz
+96 states over 25 time steps with discretization dt = 0.01 i.e. 2500 steps. The
+chaotic behavior of the system increases with increasing forcing term F.
 
+<img src="./Figures/Plot_X_F4_40_test.jpg"> <img src="./Figures/Plot_X_F16_40_test.jpg">
