@@ -37,7 +37,7 @@ distribution plots in the figure. The true target values are accurately
 covered by the estimated confidence bound over 10 time steps for all initial points
 and both forcing regimes.
 
-<img src="./Figures/L96_violin_inputmode_20_F4.jpg" width="400" height="250" > <img src="./Figures/L96_violin_inputmode_20_F10.jpg" width="400" height="250">
+<img src="./Figures/L96_violin_inputmode_20_F4.jpg" width="400" height="250" > <img src="./Figures/L96_violin_inputmode_20_F10_1.jpg" width="400" height="250">
 
 The propagated uncertainties are significantly larger
 in the weakly chaotic regime F = 4 compared to the stronger forcing F = 10 as
