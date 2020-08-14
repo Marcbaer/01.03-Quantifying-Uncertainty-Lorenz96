@@ -31,7 +31,7 @@ chaotic behavior of the system increases with increasing forcing term F.
 A propagation algorithm is applied with an optimized GPLSTM for one-step ahead predictions. The model is trained over 1000 epochs
 and then utilized to propagate. The procedure is used to propagate samples in
 the forcing regimes F = 10 and F = 4. The resulting predictive distributions
-propagated over 10 steps are shown below.
+propagated over 10 steps for one dimension is shown below.
 The uncertainties increase significantly with the future shift as obtained by the
 distribution plots in the figure. The true target values are accurately
 covered by the estimated confidence bound over 10 time steps for all initial points
