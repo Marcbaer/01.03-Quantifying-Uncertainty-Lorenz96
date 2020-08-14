@@ -25,4 +25,4 @@ turbulent around F = 16 and above. The different forcing regimes are depicted in
 96 states over 25 time steps with discretization dt = 0.01 i.e. 2500 steps. The
 chaotic behavior of the system increases with increasing forcing term F.
 
-<img src="./Figures/Plot_X_F4_40_test.png" width="300" height="700"> <img src="./Figures/Plot_X_F16_40_test.png" width="300" height="700">
+<img src="./Figures/Plot_X_F4_40_test.png" width="300" height="600"> <img src="./Figures/Plot_X_F16_40_test.png" width="300" height="600">
