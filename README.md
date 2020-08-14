@@ -4,7 +4,7 @@ This experiment evaluates GP-LSTM's (Gaussian Process regression in combination 
 The GP-LSTM models are built using the keras-gp library (https://github.com/alshedivat/keras-gp) with a matlab engine.
 
 Please check the [README_Lorenz96 File](README_Lorenz96.docx) for detailed instructions on how to run the experiment.
-The code was deployed on a computer cluster (ETH Euler) and is implemented to predict and propagate the dimensions of the dynamical system in parallel. MPI is used for message passing between nodes.
+The code was deployed on a computer cluster (ETH Euler Cluster) and is implemented to predict and propagate the individual dimensions of the dynamical system in parallel. MPI is used for message passing between nodes.
 
 *01.03 High Dimensional Lorenz 96 System*
 
@@ -26,3 +26,21 @@ turbulent around F = 16 and above. The different forcing regimes are depicted in
 chaotic behavior of the system increases with increasing forcing term F.
 
 <img src="./Figures/Plot_X_F4_40_test.png" width="300" height="600"> <img src="./Figures/Plot_X_F16_40_test.png" width="300" height="600">
+
+
+A propagation algorithm is applied with an optimized GPLSTM for one-step ahead predictions. The model is trained over 1000 epochs
+and then utilized to propagate. The procedure is used to propagate samples in
+the forcing regimes F = 10 and F = 4. The resulting predictive distributions
+propagated over 10 steps are shown below.
+The uncertainties increase significantly with the future shift as obtained by the
+distribution plots in the figure. The true target values are accurately
+covered by the estimated confidence bound over 10 time steps for all initial points
+and both forcing regimes.
+
+<img src="./Figures/L96_violin_inputmode_20_F4.jpg"> <img src="./Figures/L96_violin_inputmode_20_F10.jpg">
+
+The propagated uncertainties are significantly larger
+in the weakly chaotic regime F = 4 compared to the stronger forcing F = 10 as
+depicted in figure below.
+
+<img src="./Figures/L96_variance_inputmodes.jpg"> 
