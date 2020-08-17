@@ -30,9 +30,26 @@ hdim=20
 epochs=1500
 
 def load_data_lorenz(shift,pred_mode,input_modes,F):
-    '''Function: Load Lorenz 96 data and split into train, test and validation set. Define window size of input sequences.
-       Returns: Dictionnary containing train, test and validation DataFrames.
-    '''    
+    '''
+    Load Lorenz 96 data and split into train, test and validation set.
+    Define window size of input sequences.
+    
+    Parameters
+    ----------
+    shift : Integer
+        Number of steps to be predicted into the future.
+    pred_mode : Integer
+        Mode to be predicted into the future.
+    input_modes : Integer
+        Number of dimensions to be passed as information to the model for training.
+    F : Integer
+        Forcing Regime of the Lorenz96 system.
+
+    Returns
+    -------
+    data : Dictionnary
+        Dictionnary containing train, test and validation DataFrames..
+    '''   
     sequence_length=12 
     total_length=sequence_length+shift
    
@@ -108,9 +125,37 @@ def load_data_lorenz(shift,pred_mode,input_modes,F):
     return data
 
 def main(test,shift,pred_mode,input_modes,F,lr,hdim,epochs):
-    '''Function: Define Model Architecture, load data and train the model.
-       Returns: Optimized Model and training outputs
-    '''    
+    '''
+    Define Model Architecture, load data and train the model.
+    
+    Parameters
+    ----------
+    test : Integer
+        Experiment number.
+    shift : Integer
+        Number of steps to be predicted into the future.
+    pred_mode : Integer
+        Mode to be predicted into the future.
+    input_modes : Integer
+        Number of dimensions to be passed as information to the model for training.
+    F : Integer
+        Forcing Regime of the Lorenz96 system.
+
+    Returns
+    -------
+    history : Dictionnary
+        Training Information.
+    y_pred : Numpy Array
+        Predicted output.
+    var : Numpy Array
+        Predicted Variances.
+    rmse_predict : Float
+        Training metrics.
+    model : Optimized model
+        Optimized model after training.
+    data : Dictionnary
+        Training Data.
+    '''   
     
     data=load_data_lorenz(shift,pred_mode,input_modes,F)
     
