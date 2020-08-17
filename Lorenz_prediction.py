@@ -48,7 +48,7 @@ def load_data_lorenz(shift,pred_mode,input_modes,F):
     Returns
     -------
     data : Dictionnary
-        Dictionnary containing train, test and validation DataFrames..
+        Dictionnary containing train, test and validation DataFrames.
     '''   
     sequence_length=12 
     total_length=sequence_length+shift
