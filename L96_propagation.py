@@ -6,61 +6,56 @@ GP-LSTM regression on Lorenz3D data
 import matlab.engine
 import numpy as np
 # Keras
-from keras.optimizers import Adagrad, Adam, SGD, RMSprop
+from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping
-# Dataset interfaces
-from kgp.datasets.sysid import load_data
-from kgp.datasets.data_utils import data_to_seq, standardize_data
+
 # Model assembling and executing
 from kgp.utils.assemble import load_NN_configs, load_GP_configs, assemble
 from kgp.utils.experiment import train
 # Metrics & losses
 from kgp.losses import gen_gp_loss
 from kgp.metrics import root_mean_squared_error as RMSE
-from kgp.metrics import mean_squared_error as MSE
+#MPI and pickle imports
 from mpi4py import MPI
 import pickle
-import pandas as pd
-import matplotlib.pyplot as plt
 
+
+#initializes MPI
 comm=MPI.COMM_WORLD
 rank=comm.Get_rank()
 size=comm.Get_size()
 
+#set random seed
 np.random.seed(42)
 
-#set parameters:
-
-#test number
+#set training parameters:
 test=13
-#nr of steps into the future
 shift=1 
-#which mode is predicted (forecasted)
 pred_mode=1+rank
 
+#set dimensionality of input information
 input_modes=20
 
-#forcing regime
+#forcing regime of Lorenz96 system
 F=6
 
 #define functions
 
 def load_data_lorenz(shift,pred_mode,input_modes,F):
-    
+    '''Function: Load Lorenz 96 data and split into train, test and validation set. Define window size of input sequences.
+       Returns: Dictionnary containing train, test and validation DataFrames.
+    '''
     sequence_length=12
-  
     total_length=sequence_length+shift
 
-    
     #Load Data
     with open('./Data/40/F'+str(F)+'c_'+str(F)+'_40.pickle', "rb") as file:
         # Pickle the "data" dictionary using the highest protocol available.
         Data = pickle.load(file)
 
-    data=Data[1000:,:input_modes]
+    data=Data[:,:input_modes]
     
-    #create sequences with length sequence_length
-    
+    #create sequences with length sequence_length  
     result = []
     for index in range(len(data) - total_length):
         
@@ -68,9 +63,9 @@ def load_data_lorenz(shift,pred_mode,input_modes,F):
         k=i[:sequence_length]
         k=np.append(k,i[total_length-1,:].reshape(1,input_modes),axis=0)
         result.append(k)
-        
-        
+              
     result = np.array(result) 
+    
     #Train Test split
     train_end = int((90. / 100.) * len(result))
     
@@ -78,7 +73,7 @@ def load_data_lorenz(shift,pred_mode,input_modes,F):
     result_test=result[train_end:]
     
     #shuffle training data
-    #np.random.shuffle(result_train)
+    np.random.shuffle(result_train)
     
     #shape (#Timesteps,seq_length,#modes)    
     Input_data_train=result_train[:,:sequence_length,:]
@@ -109,14 +104,13 @@ def load_data_lorenz(shift,pred_mode,input_modes,F):
     y_testing=y_testing.reshape(y_testing.shape[0],1)
     y_validation=y_validation.reshape(y_validation.shape[0],1)
     
-    #standardize input sequences X
+    #define output dictionnary
     data = {
         'train': [X_train, y_training],
         'valid': [X_valid, y_validation],
         'test': [X_test, y_testing],
     }
     
-
     # Re-format targets
     
     for set_name in data:
@@ -127,8 +121,10 @@ def load_data_lorenz(shift,pred_mode,input_modes,F):
     return data
 
 def main(test,shift,pred_mode,input_modes,F):
-    
-    
+    '''Function: Define Model Architecture, load data and train the model.
+       Returns: Optimized Model and training outputs
+    '''
+    #Load data
     data=load_data_lorenz(shift,pred_mode,input_modes,F)
     
     # Model & training parameters
@@ -150,19 +146,16 @@ def main(test,shift,pred_mode,input_modes,F):
         'hyp_lik': np.log(0.1),
         'hyp_cov': [[3.0], [1.0]],
         
-        'opt': {'cg_maxit': 10000,'cg_tol': 1e-4,#'deg':3,
+        'opt': {'cg_maxit': 10000,'cg_tol': 1e-4,
                 'pred_var':-100,
                                 
                 },
         'grid_kwargs': {'eq': 1, 'k': 1000.},
         'update_grid': True,
-        #'ndcovs':20,
-        'ldB2_method':'lancz',#'cheby',
-        #'ldB2_cheby': True,'ldB2_cheby_hutch':20,'ldB2_cheby_degree':10,'ldB2_maxit':50, #ldB2_seed':42,
+        'ldB2_method':'lancz',
         'ldB2_lancz': True, 'ldB2_hutch':20,'ldB2_maxit':-50,
-        #'ldB2_scale': True,
-        'proj':'norm',
-        #'stat':True,        
+
+        'proj':'norm',     
     }
     
     # Retrieve model config
@@ -181,7 +174,6 @@ def main(test,shift,pred_mode,input_modes,F):
     loss = [gen_gp_loss(gp) for gp in model.output_layers]
     model.compile(optimizer=Adam(lr=1e-5), loss=loss)
 
-
     # Callbacks
     
     callbacks = [EarlyStopping(monitor='val_mse', patience=2000)]
@@ -196,8 +188,7 @@ def main(test,shift,pred_mode,input_modes,F):
                    batch_size=batch_size,
                    gp_n_iter=100,
                    verbose=0)
-    
-    
+       
     # Test the model
     X_test, y_test = data['test']
     X_train, y_train = data['train']
@@ -209,7 +200,7 @@ def main(test,shift,pred_mode,input_modes,F):
        
     return history,y_pred,var,rmse_predict,model,data
 
-
+#Run Model training
 if __name__ == '__main__':
 
     history,y_pred,var,rmse_predict,model,data=main(test,shift,pred_mode,input_modes,F)
@@ -218,7 +209,6 @@ if __name__ == '__main__':
     y_test=np.array(y_test)
     y_pred=np.array(y_pred)
     
-
     validation_error=history.history['val_mse']
     training_error=history.history['mse']
     training_error=np.array(training_error)
@@ -226,8 +216,6 @@ if __name__ == '__main__':
     
     res={'X_test':X_test,'y_test': y_test,'y_pred':y_pred,'var':var,'valid_error':validation_error,'train_error':training_error,'RMSE':rmse_predict}
     #pickle.dump(res, open('./Results/results_lorenz96_shift'+str(shift)+'_mode_'+str(pred_mode)+'_test_'+str(test)+'.p', "wb"))
-
-
 
 global_state = np.zeros((input_modes))
 local_state = np.zeros((input_modes))
@@ -253,7 +241,6 @@ X_initial=X_test[point:point+1,:,:]
 X1=np.concatenate((X_initial,X_initial),axis=0)
 
 #predict mean&var for initial point
-
 mean_1,var_1 = model.predict(X1,return_var=True,batch_size=500)
 
 print('var',var_1)
@@ -262,12 +249,10 @@ xx=np.array(mean_1)
 rmse=RMSE(y_test[0,point,0],mean_1[0][0])
 print('rmse:',rmse)
 
-
 mean_1=np.array(mean_1)[0,1,0]
 var_1=np.array(var_1)[0,1,0]
 
 #initialize dictionaries to track history
-
 K_d={}
 MEAN_d={}
 VAR_d={}
@@ -317,21 +302,18 @@ for n in range(1,n_steps+1):
         new_Hist=global_state
         new_Hist=new_Hist.reshape(1,1,input_modes)
         X_new=np.concatenate((X_old[:,1:,:],new_Hist),axis=1) 
-        
-        
+              
         #Use new history to predict new mean and var
         X_=np.concatenate((X_old,X_new),axis=0)    
         mean_2,var_2=model.predict(X_,return_var=True)
         mean_2=np.array(mean_2)[0,1,0]
         var_2=np.array(var_2)[0,1,0]        
-        
-        
+             
         #append new history to list 
         X_hist.append(X_new)
         MEAN.append(mean_2)
         VAR.append(var_2)        
-	
-    
+	  
     #append new history to dictionnaries
     K_d["K{0}".format(n)]=np.array(K)
     MEAN_d["mean{0}".format(n)]=np.array(MEAN)
@@ -340,7 +322,6 @@ for n in range(1,n_steps+1):
     print('step done:', n)
  
 if rank==0:
-
     #define X-Axis points        
     W={}       
     for i in range(1,n_steps+1):

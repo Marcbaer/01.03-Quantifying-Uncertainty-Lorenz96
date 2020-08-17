@@ -1,35 +1,23 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Oct 18 14:05:07 2018
-
-@author: marcbar
-"""
-from __future__ import print_function
-import matlab.engine
 '''
 GP-LSTM regression on Lorenz96 data
 '''
+
+from __future__ import print_function
+import matlab.engine
 import numpy as np
+
 # Keras
-from keras.optimizers import Adagrad, Adam, SGD, RMSprop
-from keras.callbacks import LearningRateScheduler
+from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping
-# Dataset interfaces
-from kgp.datasets.sysid import load_data
-from kgp.datasets.data_utils import data_to_seq, standardize_data
+
 # Model assembling and executing
 from kgp.utils.assemble import load_NN_configs, load_GP_configs, assemble
 from kgp.utils.experiment import train
 # Metrics & losses
 from kgp.losses import gen_gp_loss
 from kgp.metrics import root_mean_squared_error as RMSE
-from kgp.metrics import mean_squared_error as MSE
-import math
-import pickle
-import pandas as pd
-import matplotlib.pyplot as plt
 
+import pickle
 
 F=6
 test=99
@@ -42,12 +30,12 @@ hdim=20
 epochs=1500
 
 def load_data_lorenz(shift,pred_mode,input_modes,F):
-    
-    sequence_length=12
-  
+    '''Function: Load Lorenz 96 data and split into train, test and validation set. Define window size of input sequences.
+       Returns: Dictionnary containing train, test and validation DataFrames.
+    '''    
+    sequence_length=12 
     total_length=sequence_length+shift
-
-    
+   
     #Load Data
     with open('./Data/40/F'+str(F)+'c_'+str(F)+'_40.pickle', "rb") as file:
         # Pickle the "data" dictionary using the highest protocol available.
@@ -55,8 +43,7 @@ def load_data_lorenz(shift,pred_mode,input_modes,F):
 
     data=Data[1000:,:input_modes]
     
-    #create sequences with length sequence_length
-    
+    #create sequences with length sequence_length   
     result = []
     for index in range(len(data) - total_length):
         
@@ -74,7 +61,7 @@ def load_data_lorenz(shift,pred_mode,input_modes,F):
     result_test=result[train_end:]
     
     #shuffle training data
-    #np.random.shuffle(result_train)
+    np.random.shuffle(result_train)
     
     #shape (#Timesteps,seq_length,#modes)    
     Input_data_train=result_train[:,:sequence_length,:]
@@ -112,9 +99,7 @@ def load_data_lorenz(shift,pred_mode,input_modes,F):
         'test': [X_test, y_testing],
     }
     
-
-    # Re-format targets
-    
+    # Re-format targets  
     for set_name in data:
         y = data[set_name][1]
         y = y.reshape((-1, 1, np.prod(y.shape[1:])))
@@ -123,7 +108,9 @@ def load_data_lorenz(shift,pred_mode,input_modes,F):
     return data
 
 def main(test,shift,pred_mode,input_modes,F,lr,hdim,epochs):
-    
+    '''Function: Define Model Architecture, load data and train the model.
+       Returns: Optimized Model and training outputs
+    '''    
     
     data=load_data_lorenz(shift,pred_mode,input_modes,F)
     
@@ -146,19 +133,12 @@ def main(test,shift,pred_mode,input_modes,F,lr,hdim,epochs):
         'hyp_lik': np.log(0.1),
         'hyp_cov': [[3.0], [1.0]],
         
-        'opt': {'cg_maxit': 10000,'cg_tol': 1e-4,#'deg':3,
+        'opt': {'cg_maxit': 10000,'cg_tol': 1e-4,
                 'pred_var':-100,
                                 
                 },
         'grid_kwargs': {'eq': 1, 'k': 1000.},
-        'update_grid': True,
-        #'ndcovs':20,
-        #'ldB2_method':'lancz',#'cheby',
-        #'ldB2_cheby': True,'ldB2_cheby_hutch':20,'ldB2_cheby_degree':10,'ldB2_maxit':50, #ldB2_seed':42,
-        #'ldB2_lancz': True, 'ldB2_hutch':20,'ldB2_maxit':-50,
-        #'ldB2_scale': True,
-        #'proj':'norm',
-        #'stat':True,        
+        'update_grid': True,      
     }
     
     # Retrieve model config
@@ -178,7 +158,6 @@ def main(test,shift,pred_mode,input_modes,F,lr,hdim,epochs):
     model.compile(optimizer=Adam(lr=lr), loss=loss)
 
     #learning rate scheduler
-
     callbacks = [EarlyStopping(monitor='val_mse', patience=2000)]
 
     # Train the model
@@ -191,8 +170,7 @@ def main(test,shift,pred_mode,input_modes,F,lr,hdim,epochs):
                    batch_size=batch_size,
                    gp_n_iter=100,
                    verbose=0)
-    
-    
+      
     # Test the model
     X_test, y_test = data['test']
     X_train, y_train = data['train']
@@ -204,12 +182,11 @@ def main(test,shift,pred_mode,input_modes,F,lr,hdim,epochs):
     print('mean var:',np.array(var).mean())
     return history,y_test,y_pred,var,rmse_predict
 
-
+#Train model and save results
 if __name__ == '__main__':
 
     history,y_test,y_pred,var,rmse_predict=main(test,shift,pred_mode,input_modes,F,lr,hdim,epochs)
-    
-    
+       
     y_test=np.array(y_test)
     y_pred=np.array(y_pred)
     

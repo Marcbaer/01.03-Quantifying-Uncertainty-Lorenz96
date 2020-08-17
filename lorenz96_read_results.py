@@ -1,10 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Oct 24 13:39:17 2018
-
-@author: marcbar
-"""
+'''
+Read Lorenz96 Results
+'''
 
 import pickle
 import matplotlib.pyplot as plt
@@ -25,12 +21,7 @@ shift=1
 mode=1
 test=99
 
-
 results=pickle.load(open('./Results/F6/Results/results_lorenz96_shift'+str(shift)+'_mode_'+str(mode)+'_test_'+str(test)+'.p', 'rb'))
-
-#results=pickle.load(open('./Results/Results/results_l96_shift'+str(shift)+'_mode_'+str(mode)+'_test_'+str(test)+'.p', 'rb'))
-
-
 
 y_test=results['y_test']
 y_pred=results['y_pred']
@@ -41,20 +32,13 @@ training_error=results['train_error']
 training_error=np.array(training_error)
 training_error=training_error#/y_test.shape[0]
 
-#edgecolor='grey'
-#one step ahead
-#var=1 std, to get 95% confidence (2 std in each direction), so var*2=95% confidence
-
-
 var=results['var']
 var=np.array(var)
-#std
+
 std1=[i**0.5 for i in var]
 
 std1=np.array(std1)
 std2=2*std1
-
-#linestyle='dashed',markerfacecolor=None,markeredgecolor='blue',fillstyle='none'
 
 size=500
 point=1050
@@ -62,18 +46,13 @@ J=np.arange(0,y_test[0,size:size+size].shape[0],1)
 plt.figure(figsize=(4,3))
 plt.title('Predicted mean vs. true target, n= '+str(shift)+', RMSE=%1.2f' % rmse_predict)
 plt.xlabel("#Test point")
-#plt.ylabel('Value')
-#plt.plot(J,y_pred[0,point:point+size,0], color='blue',label='predicted mean',linewidth=1.5)
 
-#plt.fill_between(J,y_pred[0,point:point+size,0]+std2[0,point:point+size,0],y_pred[0,point:point+size,0]-std2[0,point:point+size,0],label='95% confidence',
-    #alpha=0.8, facecolor='lightgrey')
 plt.errorbar(J,y_pred[0,point:point+size,0],yerr=std2[0,point:point+size,0],capsize=0,fmt='',color='blue',ecolor='lightgrey',label='Predicted mean and 95% confidence')
    
 plt.plot(y_test[0,point:point+size],label='true',color='red',linestyle='dashed')
 plt.legend(loc=2, prop={'size': 6})
 plt.savefig('./Figures/Lorenz96_Predictions_shift_'+str(shift)+'.pdf')
 plt.show()
-
 
 #Training convergence
 plt.figure(figsize=(4,3))

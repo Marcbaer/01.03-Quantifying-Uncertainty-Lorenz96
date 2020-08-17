@@ -1,25 +1,17 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Dec 12 13:58:33 2018
-
-@author: marcbar
-"""
+'''
+Read Lorenz96 propagation results and plotting
+'''
 import numpy as np
-from keras.models import load_model
-from kgp.layers import GP
 import matplotlib.pyplot as plt
 import pickle
-import seaborn as sns
-import pandas as pd
 import matplotlib
-#np.__version__
+
+#setup plotting 
 plt.rcParams["figure.figsize"] = [4., 3.]
 SMALL_SIZE = 10
 matplotlib.rc('axes', titlesize=SMALL_SIZE)
 matplotlib.rc('font', size=SMALL_SIZE)
 plt.tick_params(labelsize=10)
-
 
 test=2
 pred_mode=1
@@ -27,13 +19,8 @@ pred_mode=1
 #2D
 results = pickle.load(open('./Results/Results/res_propagation_test'+str(test)+'_predmode_'+str(pred_mode)+'.p', 'rb'))
 
-
-#results = pickle.load(open('./Results/Results/res_propagation_2000_test9_predmode_1.p', 'rb'))
-
 #1D
 #results = pickle.load(open('./Results/Results/res_propagation1d_test'+str(test)+'.p', 'rb'))
-
-#results = pickle.load(open('./old_results/Lorenz96_F6_exp1/results_lorenz3d_shift'+str(shift)+'_mode_'+str(mode)+'_test_'+str(test)+'.p', 'rb'))
 
 K_d=results['K_d']
 MEAN_d=results['MEAN_d']
@@ -47,17 +34,11 @@ y=np.array(results['y_test'])[0,:,0]
 
 n_steps=len(MEAN_d)
 n_samples=len(K_d['K1'])
-#n_steps=results['n_steps']
-#n_samples=results['n_samples']
-
 
 #3D
-
 point=results['point']
 X=np.array(X_hist_d['hist0'][0])
 X_initial=X[0,-1,0]
-#X_initial=results['X_initial'][0,-1,0]
-
 
 '''
 #1D
@@ -68,24 +49,20 @@ X_initial=X_hist_d['hist0'][0][0,-1]
 '''
 #plot initial starting point with errorbar
 plt.scatter(w,X_initial,color='blue',label='sampled distribution')
-#plt.scatter(1,mean_1,color='blue')
 std1=var_1**0.5
 std1=np.array(std1)
 std1=3.5*std1
+
+#plot sampled points
+
+#plot predicted means
+#plt.scatter(1,mean_1,color='blue')
 #plt.errorbar(1,mean_1,yerr=std1,capsize=0,fmt='',ecolor='lightgrey')
+#for i in range(2,n_steps-1):    
+#   plt.scatter(W['w{0}'.format(i)],MEAN_d['mean{0}'.format(i+1)],color='deepskyblue')  
 
-#plot sampled points
-'''
-#plot predicted means
-plt.scatter(1,mean_1,color='blue')
-plt.errorbar(1,mean_1,yerr=std1,capsize=0,fmt='',ecolor='lightgrey')
-for i in range(2,n_steps-1):
-    
-    plt.scatter(W['w{0}'.format(i)],MEAN_d['mean{0}'.format(i+1)],color='deepskyblue')  
-'''
-#plot sampled points
-#plot predicted means
 
+#plot predicted means
 for i in range(1,n_steps):
     pos=[i]
     violin=plt.violinplot(K_d['K{0}'.format(i)].reshape(len(K_d['K{0}'.format(i)])),pos,showmeans = True)
