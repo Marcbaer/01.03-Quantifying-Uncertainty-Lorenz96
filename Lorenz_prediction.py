@@ -27,14 +27,6 @@ class Lorenz96(object):
 
         Parameters
         ----------
-        shift : Integer
-            Number of steps to be predicted into the future.
-        pred_mode : Integer
-            Mode to be predicted into the future.
-        input_modes : Integer
-            Number of dimensions to be passed as information to the model for training.
-        F : Integer
-            Forcing Regime of the Lorenz96 system.
         test : Integer
             Experiment number.
         shift : Integer
@@ -45,6 +37,16 @@ class Lorenz96(object):
             Number of dimensions to be passed as information to the model for training.
         F : Integer
             Forcing Regime of the Lorenz96 system.
+        sequence_length: Integer
+            length of input sequence.
+        lr: float
+            Learning rate.
+        hdim: integer
+            Number of hidden dimensions (LSTM)
+        epochs: integer
+            Number of training epochs
+        batch_size: integer
+            Batch size used for training.
         '''
         #Data Parameters
         self.test=test
