@@ -6,7 +6,7 @@ The GP-LSTM models are built using the keras-gp library (https://github.com/alsh
 Please check the [README_Lorenz96 File](README_Lorenz96.docx) for detailed instructions on how to run the experiment.
 The code was deployed on a computer cluster (ETH Euler Cluster) and is implemented to predict and propagate the individual dimensions of the dynamical system in parallel. MPI is used for message passing between nodes.
 
-*01.03 High Dimensional Lorenz 96 System*
+**01.03 High Dimensional Lorenz 96 System**
 
 The GP-LSTM architecture is applied for forecasting and uncertainty quantification in the Lorenz 96 model. Lorenz 96 is a chaotic dynamical system developed by Edward N. Lorenz in [34] and describes the behavior in the mid-latitude atmosphere.
 Hence, it is often used as a benchmark for weather forecasting methods. 
