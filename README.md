@@ -13,8 +13,6 @@ Hence, it is often used as a benchmark for weather forecasting methods.
 The differential equations which describe the dynamics of the system
 are given by:
 
-<img src="https://render.githubusercontent.com/render/math?math=\frac{\partial X_{j}}{\partial t} \ = \left(X_{j+1}-X_{j-2}\right)X_{j-1}-X_{j}"> +F
-
 $\frac{\partial X_{j}}{\partial t} \ = \left(X_{j+1}-X_{j-2}\right)X_{j-1}-X_{j}$
 
 The parameter *F* defines the positive external forcing term and *J* the total number of Lorenz states, hence the number of dimensions.
